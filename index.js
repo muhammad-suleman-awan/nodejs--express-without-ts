@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get("/show", async (req, res) => {
-  let limit = 6;
+  let limit = 10;
   if (req.body.limit) {
     limit = req.body.limit;
   }
@@ -53,16 +53,15 @@ app.get("/show", async (req, res) => {
   );
 });
 
-app.post("/addProduct", async (req, res) => {
+app.post("/addusernameorder", async (req, res) => {
   try {
-    return res.send(req.body);
-    const { idorderdetail, usernameorder, product_price, product_id } = req.body;
-    if (!product_name || !productdescription || !product_price || !product_id) {
+    //  return res.send(req.body);
+    const { usernameorder, useremailorrder, productquantityorder } = req.body;
+    if (!usernameorder || !useremailorrder || !productquantityorder) {
       return res.status(400).json({ error: "Details are required" });
     }
-
     con.query(
-      `INSERT INTO productdetail (product_name, productdescription, product_price, product_id) VALUES ("${name}", "${description}", "${instock_quantity}", "${price}")`,
+      `INSERT INTO orderdetail (usernameorder, useremailorrder, productquantityorder ) VALUES ("${usernameorder}", "${useremailorrder}", "${productquantityorder}" )`,
       function (err, results, fields) {
         if (err) {
           return res.status(403).json({
@@ -88,91 +87,46 @@ app.post("/addProduct", async (req, res) => {
   }
 });
 
-// app.get("/showcustomer", async (req, res) => {
-//   con.query("SELECT * FROM customer", function (err, results, fields) {
-//     if (err) {
-//       return res.status(500).send("Internal server error");
-//     }
-//     return res.status(200).json(results);
-//   });
-// });
+app.post("/addproductdetail", async (req, res) => {
+  try {
+    const { product_name, productdescription, product_price } = req.body;
+    if (!product_name || !productdescription || !product_price) {
+      return res.send.status(400).json({ error: "Details are required" });
+    }
+    con.query(
+      `INSERT INTO productdetail (product_name,productdescription,product_price) VALUES ("${product_name}", "${productdescription}", "${product_price}" )`,
+      function (err, results, fields) {
+        if (err) {
+          return res.status(403).json({
+            success: false,
+            message: "data not stored",
+            error: err,
+          });
+        }
+        return res.status(201).json({
+          success: true,
+          message: "Product added successfully",
+          data: results,
+        });
+      }
+    );
+  } catch (error) {
+    console.error("Error adding product:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error,
+    });
+  }
+});
 
-// app.post("/addcustomer", async (req, res) => {
-//   try {
-//     const { name, password, email } = req.body;
-//     if (!name || !password || !email) {
-//       return res.status(400).json({ error: "Details are required" });
-//     }
-
-//     con.query(
-//       `INSERT INTO customer (name, password, email ) VALUES ("${name}", "${password}", "${email}" )`,
-//       function (err, results, fields) {
-//         if (err) {
-//           return res.status(403).json({
-//             success: false,
-//             message: "data not stored",
-//             error: err,
-//           });
-//         }
-//         return res.status(201).json({
-//           success: true,
-//           message: "Product added successfully",
-//           data: results,
-//         });
-//       }
-//     );
-//   } catch (error) {
-//     console.error("Error adding product:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Internal Server Error",
-//       error: error,
-//     });
-//   }
-// });
-
-// app.get("/showproductorder", async (req, res) => {
-//   con.query("SELECT * FROM productorder", function (err, results, fields) {
-//     if (err) {
-//       return res.status(500).send("INternal server error");
-//     }
-//     return res.status(200).json(results);
-//   });
-// });
-
-// app.post("/addproductorder", async (req, res) => {
-//   try {
-//     const { product_id, customer_id, product_quantity } = req.body;
-//     if (!product_id || !customer_id || !product_quantity) {
-//       return res.status(400).json({ error: "Details are required" });
-//     }
-
-//     con.query(
-//       `INSERT INTO productorder (product_id, customer_id, product_quantity ) VALUES ("${product_id}", "${customer_id}", "${product_quantity}" )`,
-//       function (err, results, fields) {
-//         if (err) {
-//           return res.status(403).json({
-//             success: false,
-//             message: "data not stored",
-//             error: err,
-//           });
-//         }
-//         return res.status(201).json({
-//           success: true,
-//           message: "Product added successfully",
-//           data: results,
-//         });
-//       }
-//     );
-//   } catch (error) {
-//     console.error("Error adding product:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Internal Server Error",
-//       error: error,
-//     });
-//   }
-// });
+app.get("/orderdetail", async (req, res) => {
+  con.query(`SELECT * FROM productdetail `, function (err, results, fields) {
+    if (err) {
+      return res.status(500).send("Internal server error");
+    } else return res.status(200).json({ success: "Data Saves SucesssFully", status: true, data: results });
+  });
+});
 
 app.listen(2222, () => {
   console.log("Server is running on localhost:2222");
